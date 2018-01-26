@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/nodeappdatabase', {
-    useMongoClient: true
+    //useMongoClient: true
 });
 
+//new user Schema
 const userSchema = new Schema({
     name: String,
     username: { type: String, required: true, unique: true },
@@ -14,14 +16,14 @@ const userSchema = new Schema({
     updated_at: Date
 });
 
-const User = mongoose.model('User', userSchema);
-
+//Mongoose schema method
 userSchema.methods.manify = function(next) {
     this.name = this.name + '-boy';
 
     return next(null, this.name);
 };
 
+//pre-save method
 userSchema.pre('save', function(next) {
     //pobranie aktualnego czasu
     const currentDate = new Date();
@@ -29,17 +31,12 @@ userSchema.pre('save', function(next) {
     //zmiana pola na aktualny czas
     this.updated_at = currentDate;
 
-    if (!this.created_at) {
+    if (!this.created_at)
         this.created_at = currentDate;
-    }
 
-    // next() jest funkcją która przechodzi do następnego hooka do
-    // wykonania przed lub po requeście
     next();
 });
-
-
-// baza użytkowników
+const User = mongoose.model('User', userSchema);
 const kenny = new User({
     name: 'Kenny',
     username: 'Kenny_the_boy',
@@ -52,7 +49,7 @@ kenny.manify(function(err, name) {
 kenny.save(function(err) {
     if (err) throw err;
 
-    console.log('Uzytkownik zapisany pomyslnie');
+    console.log('Uzytkownik ' + kenny.name +  ' zapisany pomyslnie');
 });
 const benny = new User({
     name: 'Benny',
